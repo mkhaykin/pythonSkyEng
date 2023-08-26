@@ -1,0 +1,7 @@
+main {
+    margin-top: 4rem;
+    margin-bottom: 3rem;
+    /* background-color: coral; */
+    height: calc(100vh - 7rem);
+    overflow-x:hidden;
+}

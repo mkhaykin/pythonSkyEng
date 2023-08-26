@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" lang="en"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <!-- Bootstrap CSS -->
+    <link href="/static/bootstrap-5.3.0/css/bootstrap.min.css" rel="stylesheet"/>
+    <!-- Project CSS -->
+    <link href="/static/style.css" rel="stylesheet"/>
+
+    {% block css %}
+    {% endblock %}
+
+    {% block head_scripts %}
+    {% endblock %}
+
+    {% if title %}
+    <title>SkyEng test project - {{ title }}</title>
+    {% else %}
+    <title>SkyEng test project</title>
+    {% endif %}
+</head>
+<body>
+<header class="site-header">
+
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand mr-4" href="/">SkyEng: py checker</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
+                    aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarToggle">
+                <div class="navbar-nav me-auto">
+                    <a class="nav-item nav-link" href="{{ url_for('main.index') }}">Home</a>
+                    <a class="nav-item nav-link" href="{{ url_for('auth.session') }}">Session</a>
+                    <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
+                </div>
+                <!-- Navbar Right Side -->
+                <div class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                    <!-- TODO: HELLO if login -->
+                    <span class="navbar-text navbar-dark">Hi {{ current_user.nickname }}!</span>
+                    <a class="nav-item nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                    {% else %}
+                    <a class="nav-item nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                    <a class="nav-item nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main role="main" class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+            </div>
+            <div class="row">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="content-section">
+                <h3>Our Statistic</h3>
+                <ul class="list-group">
+                    <li class="list-group-item list-group-item-light">Latest Posts __</li>
+                    <li class="list-group-item list-group-item-light">Announcements</li>
+                    <li class="list-group-item list-group-item-light">Calendars</li>
+                    <li class="list-group-item list-group-item-light">etc</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</main>
+
+{% block footer %}
+<footer class="footer fixed-bottom">
+    <div class="container">
+        <div class="content-section p-3">
+            © 2023 copyleft.
+            <!--    			<a class="text-muted" href="https://khaykin.app/">khaykin.app</a>-->
+        </div>
+    </div>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<!-- Optional JavaScript -->
+<script src="/static/bootstrap-5.3.0/js/bootstrap.bundle.min.js"></script>
+<!-- Project JS -->
+<script src="/static/script.js"></script>
+{% endblock %}
+
+{% block body_scripts %}
+{% endblock %}
+</body>
+</html>

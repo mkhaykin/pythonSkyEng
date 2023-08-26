@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="content-section">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">key</th>
+                <th scope="col">value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>id</td>
+                <td>{{ current_user.id }}</td>
+            </tr>
+            <tr>
+                <td>username</td>
+                <td>{{ current_user.username }}</td>
+            </tr>
+            <tr>
+                <td>token</td>
+                <td>{{ current_user.token }}</td>
+            </tr>
+            <tr>
+                <td>token subject</td>
+                <td>{{ current_user.token_sub }}</td>
+            </tr>
+            <tr>
+                <td>token exp</td>
+                <td>{{ current_user.token_exp }}</td>
+            </tr>
+            <tr>
+                <td>token exp utc</td>
+                <td>{{ current_user.token_exp_utc }}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}
