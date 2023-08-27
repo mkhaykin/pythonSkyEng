@@ -8,9 +8,9 @@ from src.api.v1.auth import (
     create_access_token,
     get_current_active_user,
 )
-from src.api.v1.config import settings
+from src.api.config import settings
 from src.api.v1.db import fake_users_db
-from src.api.v1.models import TokenModel, User
+from src.api.v1.schemas import TokenModel, User
 
 router = APIRouter(
     prefix='/api/v1'

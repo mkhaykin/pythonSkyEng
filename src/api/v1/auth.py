@@ -5,9 +5,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-from src.api.v1.config import settings
+from src.api.config import settings
 from src.api.v1.db import fake_users_db
-from src.api.v1.models import TokenData, User, UserInDB
+from src.api.v1.schemas import TokenData, User, UserInDB
 
 CREDENTIALS_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,

@@ -1,2 +1,2 @@
-from src.api.v1.models.token import TokenModel, TokenData
-from src.api.v1.models.user import User, UserInDB
+from src.api.v1.models.base import Base, TBaseModel
+from src.api.v1.models.users import Users
