@@ -2,12 +2,10 @@ import datetime
 
 import jwt
 
-from src.app.api import API_URL_TOKEN_RENEWAL, API_URL_TOKEN_REQUEST, post
-
 # запас времени, который мы даем на обработку истекающего токена
-TOKEN_TIME_RESERVE: datetime.timedelta = datetime.timedelta(minutes=1)
+# TOKEN_TIME_RESERVE: datetime.timedelta = datetime.timedelta(minutes=1)
 # за какое время до истечения начинаем продлевать
-TOKEN_TIME_RENEWAL: datetime.timedelta = datetime.timedelta(minutes=29)
+# TOKEN_TIME_RENEWAL: datetime.timedelta = datetime.timedelta(minutes=29)
 
 
 def timestamp_utc():
@@ -83,51 +81,3 @@ class TokenInfo:
     @property
     def exp_utc(self):
         return self._exp_utc
-
-
-def get_token(token: str) -> TokenInfo:
-    obj_token = TokenInfo(token)
-    return obj_token
-
-
-def is_token_expired(token: str | None) -> bool:
-    if not token:
-        return True
-
-    obj_token = TokenInfo(token)
-    return obj_token.exp_utc <= datetime.datetime.utcnow() - TOKEN_TIME_RESERVE
-
-
-def is_token_needs_updating(token: str):
-    assert token
-    obj_token = TokenInfo(token)
-    return obj_token.exp_utc <= datetime.datetime.utcnow() + TOKEN_TIME_RENEWAL
-
-
-def request_token(username: str, password: str) -> str | None:
-    # TODO: write log "request_token"
-    answer = post(
-        url=API_URL_TOKEN_REQUEST,
-        data={
-            'username': username,
-            'password': password
-        }
-    )
-    if answer:
-        return answer.json()['access_token']
-
-    return None
-
-
-def refresh_token(token: str) -> str | None:
-    # TODO: write log "refresh_token"
-    if token is None:
-        return None
-
-    answer = post(
-        url=API_URL_TOKEN_RENEWAL,
-        token=token,
-    )
-    if answer:
-        return answer.json()['access_token']
-    return None

@@ -3,7 +3,13 @@ from urllib.parse import urlsplit
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from src.app import db, login_manager
+from src.app import login_manager
+from src.app.exceptions import (
+    APIServiceUnavailableException,
+    APIUnauthorizedException,
+    UserCreateDuplicateException,
+    UserCreateValuesException,
+)
 from src.app.forms import (
     ChangePasswordForm,
     LoginForm,
@@ -11,6 +17,7 @@ from src.app.forms import (
     ResetPasswordForm,
 )
 from src.app.models import Users
+from src.app.services import UserService
 
 auth = Blueprint('auth', __name__)
 
@@ -28,18 +35,22 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user: Users = Users.get_by_name(username=form.username.data)
-
-        # если пользователя нет, то создаем пользователя
-        if not user:
-            user = Users(form.username.data)
-            db.session.add(user)
-            db.session.commit()
-
-        # при входе _всегда_ запрашиваем токен (иначе надо отдельно проверять пароль или ловим уязвимость)
-        user.request_token(password=form.password.data)
-
-        if user.token:
+        try:
+            user: Users = UserService.login(
+                identity=form.username.data,
+                password=form.password.data,
+            )
+        except APIUnauthorizedException:
+            flash(
+                message='Login unsuccessful. Please check username and password.',
+                category='danger',
+            )
+        except APIServiceUnavailableException:
+            flash(
+                message='Api service unavailable. Please try again later.',
+                category='danger',
+            )
+        else:
             login_user(user, remember=False, force=True)
             flash(
                 message='You have been logged in!',
@@ -51,12 +62,6 @@ def login():
                 return redirect(url_for('main.index'))
 
             return redirect(next_url)
-        else:
-            flash(
-                message='Login Unsuccessful. Please check username and password',
-                category='danger',
-            )
-            # TODO write log
 
     return render_template('login.html', title='Login', form=form)
 
@@ -84,8 +89,32 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         # TODO регистрация через ручку
-        flash('We are create new user now! Please log in.')
-        return render_template('todo.html')
+        try:
+            UserService.register(
+                username=form.username.data,
+                email=form.email.data,
+                password=form.password.data,
+            )
+        except UserCreateValuesException as e:
+            flash(
+                message="Can't register the user",
+                category='danger',
+            )
+            if len(e.args) and type(e.args[0]) is dict:
+                for field, message in e.args[0].items():
+                    if field in form:
+                        form[field].errors = message
+        except UserCreateDuplicateException:
+            flash(
+                message='User already exists',
+                category='danger',
+            )
+        else:
+            flash(
+                message='We are create new user now! Please log in.',
+                category='info',
+            )
+            return redirect('/login')
     return render_template('register.html', form=form)
 
 

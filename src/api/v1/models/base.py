@@ -28,10 +28,3 @@ TBaseModel = TypeVar('TBaseModel', bound=BaseModel)
 @event.listens_for(Base.metadata, 'before_create')
 def _configure_mappers(*args, **kwargs):
     configure_mappers()
-
-
-from sqlalchemy import Column, String, UniqueConstraint
-
-
-class TMPUSER(Base):
-    username = Column(String, primary_key=True, unique=True, nullable=False)

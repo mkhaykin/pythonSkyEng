@@ -1,23 +1,42 @@
-from typing import Callable
+from http import HTTPStatus
+from typing import Any
 
 import requests
-from flask import current_app
+from requests.exceptions import ConnectionError
+
+from src.app.exceptions import APIServiceUnavailableException, APIUnauthorizedException
 
 
-def get(url: str, token: str | None = None, data: dict | None = None) -> requests.Response | None:
-    return _request(requests.get, url=url, token=token, data=data)
+def get(
+        url: str,
+        token: str | None = None,
+        data: dict | None = None,
+
+) -> requests.Response:
+    return _request('get', url=url, token=token, data=data)
 
 
-def post(url: str, token: str | None = None, data: dict | None = None) -> requests.Response | None:
-    return _request(requests.post, url=url, token=token, data=data)
+def post(
+        url: str,
+        token: str | None = None,
+        data: dict | None = None,
+        json: dict | None = None,
+) -> requests.Response:
+    return _request(
+        method='post',
+        url=url,
+        token=token,
+        data=data,
+        json=json,
+    )
 
 
-def put(url: str, token: str | None = None, data: dict | None = None) -> requests.Response | None:
-    return _request(requests.put, url=url, token=token, data=data)
+def put(url: str, token: str | None = None, data: dict | None = None) -> requests.Response:
+    return _request('put', url=url, token=token, data=data)
 
 
-def delete(url: str, token: str | None = None, data: dict | None = None) -> requests.Response | None:
-    return _request(requests.delete, url=url, token=token, data=data)
+def delete(url: str, token: str | None = None, data: dict | None = None) -> requests.Response:
+    return _request('delete', url=url, token=token, data=data)
 
 
 # def _clear_data(data: dict | None) -> dict | None:
@@ -34,21 +53,38 @@ def delete(url: str, token: str | None = None, data: dict | None = None) -> requ
 
 
 def _request(
-        method: Callable,
+        # method: Callable,
+        method: str,
         url: str,
         token: str | None = None,
         data: dict | None = None,
-) -> requests.Response | None:
-    params = {}
+        json: dict | None = None,
+) -> requests.Response:
+    params: dict[str, Any] = {}
     if token:
         headers = {'Authorization': f'Bearer {token}'}
         params.update({'headers': headers})
     if data:
         params.update({'data': data})
+    if json:
+        params.update({'json': json})
 
     try:
-        return method(url, **params)
-    except Exception as e:
-        current_app.logger.error(e)
+        # return method(url, **params)
+        answer = requests.request(
+            method=method,
+            url=url,
+            **params,
+        )
+    except ConnectionError:
+        raise APIServiceUnavailableException()
+    else:
+        if answer.status_code == HTTPStatus.SERVICE_UNAVAILABLE:
+            raise APIServiceUnavailableException()
+        elif answer.status_code == HTTPStatus.UNAUTHORIZED:
+            raise APIUnauthorizedException()
 
-    return None
+        # except Exception as e:
+        #     current_app.logger.error(e)
+
+        return answer

@@ -110,13 +110,19 @@ def create_app() -> Flask:
     @app.errorhandler(404)
     def not_found_error(error):
         # TODO write log
-        return render_template('404.html'), 404
+        return render_template('404.html', error=error), 404
 
     @app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()
         # TODO write log
-        return render_template('500.html'), 500
+        return render_template('500.html', error=error), 500
+
+    @app.errorhandler(503)
+    def service_unavailable(error):
+        db.session.rollback()
+        # TODO write log
+        return render_template('503.html', error=error), 503
 
     return app
 
