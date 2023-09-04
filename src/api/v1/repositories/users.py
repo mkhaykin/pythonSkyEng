@@ -43,12 +43,13 @@ class UserRepository(BaseRepository):
     #     db_user = result.one()
 
     async def get_user(self, username_or_email: str) -> Users | None:
+        username_or_email = username_or_email.lower()
         stmt = (
             select(
                 Users
             ).where(
                 or_(
-                    Users.username == username_or_email,
+                    Users.name == username_or_email,
                     Users.email == username_or_email,
                     # 1 == 1,
                 )
