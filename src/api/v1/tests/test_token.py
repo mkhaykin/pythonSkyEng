@@ -35,6 +35,24 @@ async def test_token_ok(async_db: AsyncSession, async_client: AsyncClient):
 
 
 @pytest.mark.asyncio
+async def test_token_case(async_db_clear: AsyncSession, async_client: AsyncClient):
+    await registry(
+        async_client,
+        **user_tom,
+        waited_code=201)
+
+    data = await get_token(
+        async_client,
+        identity=user_tom['username'].upper(),
+        password=user_tom['password'],
+        waited_code=200)
+
+    obj_token = TokenInfo(data['access_token'])
+    # check token subject
+    assert obj_token.sub == user_tom['username']
+
+
+@pytest.mark.asyncio
 async def test_token_unauthorised_user_wrong_password(async_db: AsyncSession, async_client: AsyncClient):
     await registry(
         async_client,
