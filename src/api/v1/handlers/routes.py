@@ -38,7 +38,6 @@ async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(),
         service: UserService = Depends(),
 ):
-    print(form_data)
     return await service.token_request(form_data.username, form_data.password)
 
 
