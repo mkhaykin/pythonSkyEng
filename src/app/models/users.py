@@ -8,7 +8,7 @@ from flask_login import UserMixin, logout_user
 from src.app import db
 from src.app.api.request import post
 from src.app.api.urls import API_URL_TOKEN_RENEWAL, API_URL_TOKEN_REQUEST
-from src.app.models.token import TokenInfo
+from src.token import TokenInfo
 
 # запас времени, который мы даем на обработку истекающего токена
 TOKEN_TIME_RESERVE: datetime.timedelta = datetime.timedelta(seconds=10)

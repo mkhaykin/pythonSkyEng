@@ -2,19 +2,8 @@ import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .samlpe_users import user_tom
 from .test_utils_user import registry
-
-user_sara = {
-    'username': 'sara',
-    'email': 'sara@sample.com',
-    'password': 'SaraPassword$1',
-}
-
-user_tom = {
-    'username': 'tom',
-    'email': 'tom@sample.com',
-    'password': 'TomPassword$1',
-}
 
 
 async def duplicate_user(async_client: AsyncClient, user1: dict, user2: dict):
