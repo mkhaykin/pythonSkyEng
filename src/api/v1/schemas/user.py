@@ -5,15 +5,18 @@ from email_validator import EmailNotValidError, validate_email
 from pydantic import BaseModel, ConfigDict, field_validator
 
 
-class User(BaseModel):
+class _User(BaseModel):
     username: str
     email: str
+
+
+class User(_User):
+    id: UUID
     disabled: bool = False
+    pass
 
 
-class UserRegistration(BaseModel):
-    username: str
-    email: str
+class UserRegistration(_User):
     password: str
 
     @field_validator('username', mode='before')
@@ -66,13 +69,8 @@ class UserRegistration(BaseModel):
         return value
 
 
-class UserInDB(User):
-    model_config = ConfigDict(from_attributes=True)
+class UserInDB(_User):
     id: UUID
     psw_hash: str
+    model_config = ConfigDict(from_attributes=True)
 
-
-class UserIn(BaseModel):
-    username: str
-    email: str
-    password: str
