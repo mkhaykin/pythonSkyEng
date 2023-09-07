@@ -9,9 +9,9 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 
 class Users(Base, MixinID, MixinTimeStamp):
-    name = Column(String, unique=True, nullable=False)
-    username = Column(String, unique=True, nullable=False)
-    email = Column(String, unique=True, nullable=False)
+    name = Column(String, unique=True, index=True, nullable=False)
+    username = Column(String, unique=True, index=True, nullable=False)
+    email = Column(String, unique=True, index=True, nullable=False)
     psw_hash = Column(String, nullable=False)
     disabled = Column(Boolean, nullable=False, default=False, server_default='f')
 

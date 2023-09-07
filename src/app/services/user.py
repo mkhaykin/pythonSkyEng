@@ -35,7 +35,7 @@ class UserService:
                 'password': password,
             }
         )
-        if answer.status_code != HTTPStatus.OK or not answer.json() or not answer.json().get('access_token'):
+        if answer.status_code != HTTPStatus.CREATED or not answer.json() or not answer.json().get('access_token'):
             raise TokenRequestException()
 
         return answer.json()['access_token']

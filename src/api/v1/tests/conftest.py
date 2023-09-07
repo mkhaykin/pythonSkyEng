@@ -15,7 +15,9 @@ from src.api.database import (
     SQLALCHEMY_TEST_DATABASE_URL_async,
     get_async_db,
 )
-from src.api.v1.models import Base
+from src.api.v1 import models
+
+from .samlpe_users import USER_JOHN, USER_MARY, USER_SARA, USER_TOM
 
 engine_test_async = create_async_engine(
     SQLALCHEMY_TEST_DATABASE_URL_async,
@@ -38,12 +40,12 @@ async def override_get_async_db() -> AsyncGenerator:
 
 async def create_tables_async():
     async with engine_test_async.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(models.Base.metadata.create_all)
 
 
 async def drop_tables_async():
     async with engine_test_async.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(models.Base.metadata.drop_all)
 
 
 # @pytest_asyncio.fixture(scope='module')
@@ -76,6 +78,16 @@ async def async_db(async_db_engine):
         yield session
 
 
+@pytest_asyncio.fixture(scope='module')
+async def db_test_users(async_db):
+    async_db.add(models.Users(**USER_MARY))
+    async_db.add(models.Users(**USER_SARA))
+    async_db.add(models.Users(**USER_JOHN))
+    async_db.add(models.Users(**USER_TOM))
+    await async_db.commit()
+    yield async_db
+
+
 @pytest_asyncio.fixture(scope='function')
 async def async_db_clear(async_db):
     await drop_tables_async()
@@ -98,21 +110,3 @@ def event_loop():
     loop = policy.new_event_loop()
     yield loop
     loop.close()
-
-
-# @pytest_asyncio.fixture(scope='function')
-# async def db_test_data(async_db):
-#     async_db.add(Menus(**MENU1))
-#     async_db.add(Menus(**MENU2))
-#     await async_db.commit()
-#     async_db.add(SubMenus(**SUBMENU1))
-#     async_db.add(SubMenus(**SUBMENU2))
-#     async_db.add(SubMenus(**SUBMENU3))
-#     await async_db.commit()
-#     async_db.add(Dishes(**DISH1))
-#     async_db.add(Dishes(**DISH2))
-#     async_db.add(Dishes(**DISH3))
-#     await async_db.commit()
-#
-#     await cache_reset()
-#     yield async_db
