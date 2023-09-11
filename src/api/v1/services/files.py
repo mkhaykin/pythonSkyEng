@@ -50,7 +50,7 @@ class FilesService:
     async def upload(self, file: UploadFile, user_id: UUID):
         self.check_file_extension(file)
 
-        filename = str(uuid.uuid4())
+        filename = str(uuid.uuid4()) + '.py'
         self._copy_to_store(file, filename)
 
         db_file: models.Files = await self._repo.create(

@@ -73,4 +73,3 @@ class UserInDB(_User):
     id: UUID
     psw_hash: str
     model_config = ConfigDict(from_attributes=True)
-

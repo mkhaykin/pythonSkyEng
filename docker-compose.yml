@@ -19,10 +19,57 @@ services:
 #       timeout: 10s
 #       retries: 5
 #       start_period: 10s
-#    volumes:
-#      - ./db:/var/lib/postgresql/data
+    volumes:
+      - ./db:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3.10.7-alpine
+    container_name: skyeng_rabbitmq
+    hostname: rabbit
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS}"
+      RABBITMQ_DEFAULT_VHOST: "${RABBITMQ_DEFAULT_VHOST}"
+    ports:
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+
+  celery:
+    container_name: skyeng_celery
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+        - .env
+    environment:
+      POSTGRES_HOST: db
+      RABBITMQ_SERVER: rabbit
+    command: celery --app=src.api.celery:app_celery worker --loglevel=INFO
+    depends_on:
+      - rabbitmq
+      - db
+    volumes:
+      - ./store:/srv/store
+
+  celery-beat:
+      container_name: skyeng_celery_beat
+      build:
+        context: .
+        dockerfile: Dockerfile
+      env_file:
+        - .env
+      environment:
+        POSTGRES_HOST: db
+        RABBITMQ_SERVER: rabbit
+      command: celery --app=src.api.celery:app_celery beat --loglevel=INFO
+      links:
+        - celery
+      depends_on:
+        - rabbitmq
+        - db
+      volumes:
+        - ./store:/srv/store
 
 networks:
   default:
-      name: lan_fastapi
+      name: lan

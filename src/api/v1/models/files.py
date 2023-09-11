@@ -22,7 +22,7 @@ class Files(Base, MixinID, MixinTimeStamp):
     replaced_at = Column(DateTime(timezone=True))
 
     checked_at = Column(DateTime(timezone=True))
-    checking_result = Column(String, unique=False, nullable=True, server_default='')
+    checked_result = Column(String, unique=False, nullable=True, server_default='')
 
     send_result_at = Column(DateTime(timezone=True))
 
@@ -52,7 +52,7 @@ class Files(Base, MixinID, MixinTimeStamp):
             self.replaced_at = None
 
     def check_completed(self, message: str):
-        self.checking_result = message
+        self.checked_result = message
         self.checked_at = datetime.datetime.now()
 
     def result_sent(self):
