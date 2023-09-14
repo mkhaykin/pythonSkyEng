@@ -6,7 +6,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.api.config import settings
-from src.token import TokenInfo
+from src.jwt_token import TokenInfo
 
 from .samlpe_users import USER_JOHN, USER_SARA, USER_TOM
 from .test_utils_user import get_token, registry
