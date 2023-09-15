@@ -2,10 +2,12 @@ import re
 from uuid import UUID
 
 from email_validator import EmailNotValidError, validate_email
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import ConfigDict, field_validator
+
+from .base import Base
 
 
-class _User(BaseModel):
+class _User(Base):
     username: str
     email: str
 

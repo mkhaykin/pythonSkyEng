@@ -1,10 +1,12 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
+
+from .base import Base
 
 
-class _File(BaseModel):
+class _File(Base):
     name: str
     original_name: str
     replaced_id: UUID | None
@@ -14,7 +16,7 @@ class _File(BaseModel):
     send_result_at: datetime | None
 
 
-class _FileId(BaseModel):
+class _FileId(Base):
     id: UUID
 
 

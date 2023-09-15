@@ -1,4 +1,7 @@
-from pydantic import BaseModel as Base
+from src.api.v1.schemas.base import (
+    Base,
+    TBaseSchema,
+)
 
 from src.api.v1.schemas.token import (
     TokenModel,
