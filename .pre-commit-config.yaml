@@ -49,8 +49,13 @@ repos:
     rev: v0.991
     hooks:
       - id: mypy
-        exclude: 'migrations'
+        exclude:  |
+          (?x)^(
+              migrations/.*|
+              alembic/.*
+          )$
         args: [ --show-error-codes ]
         additional_dependencies: [
           types-requests,
+#          alembic,
         ]

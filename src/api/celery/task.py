@@ -1,12 +1,11 @@
 import asyncio
 
 from src.api.config import settings
-from src.api.database import ping_db
+from src.api.database import AsyncSession, ping_db
 from src.api.v1.repositories import FilesRepository
 from src.api.v1.services import ExamService
 
 from .app import app_celery
-from .database import AsyncSession
 
 
 async def async_check_files():
@@ -20,7 +19,7 @@ async def async_check_files():
             service = ExamService(repo)
             await service.check()
         except Exception as e:
-            print(e)
+            print(e)    # TODO write log
 
 
 @app_celery.task

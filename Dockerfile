@@ -4,19 +4,23 @@ FROM python:3.10-slim
 LABEL maintainer="mkhaikin@yandex.ru"
 
 #
-WORKDIR /src
+WORKDIR /project
 
 #
-COPY . .
+COPY src ./src
+COPY requirements.txt ./
+COPY .pre-commit-config_exam.yaml ./.pre-commit-config.yaml
 
 #
 RUN apt update && \
     apt install -y --no-install-recommends git && \
     git init . && \
-    pip install --no-cache-dir --upgrade -r /src/requirements.txt
+    pip install --no-cache-dir --upgrade -r requirements.txt && \
+    pre-commit install && \
+    pre-commit
 #
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONBUFFERED 1
 
 #
-CMD ["uvicorn", "app.main:app", "--reload", "--workers", "1", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "api:fastapi_app", "--reload", "--workers", "1", "--host", "0.0.0.0", "--port", "8000"]

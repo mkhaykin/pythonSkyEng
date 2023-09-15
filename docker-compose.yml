@@ -44,6 +44,7 @@ services:
     environment:
       POSTGRES_HOST: db
       RABBITMQ_SERVER: rabbit
+      FILE_STORE_PATH: /srv/store
     command: celery --app=src.api.celery:app_celery worker --loglevel=INFO
     depends_on:
       - rabbitmq
@@ -65,10 +66,11 @@ services:
       links:
         - celery
       depends_on:
+        - celery
         - rabbitmq
         - db
-      volumes:
-        - ./store:/srv/store
+#      volumes:
+#        - ./store:/srv/store
 
 networks:
   default:
