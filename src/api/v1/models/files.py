@@ -26,18 +26,6 @@ class Files(Base, MixinID, MixinTimeStamp):
 
     send_result_at = Column(DateTime(timezone=True))
 
-    @property
-    def is_replaced(self) -> bool:
-        return bool(self.replaced_at)
-
-    @property
-    def is_checked(self) -> bool:
-        return bool(self.checked_at)
-
-    @property
-    def is_result_sent(self) -> bool:
-        return bool(self.send_result_at)
-
     def __init__(self, name: str, original_name: str, user_id: UUID):
         super().__init__()
         self.name = name

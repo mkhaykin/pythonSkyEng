@@ -1,6 +1,14 @@
 from urllib.parse import urlsplit
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint,
+    Response,
+    flash,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_login import current_user, login_required, login_user, logout_user
 
 from src.app import login_manager
@@ -28,7 +36,7 @@ def load_user(user_id: str) -> Users | None:
 
 
 @auth.route('/login', methods=['GET', 'POST'])
-def login():
+def login() -> Response | str:
     """ login page """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -67,7 +75,7 @@ def login():
 
 
 @auth.route('/logout', methods=['GET', 'POST'])
-def logout():
+def logout() -> Response | str:
     """ logout """
     logout_user()
     return redirect(url_for('main.index'))
@@ -75,13 +83,13 @@ def logout():
 
 @auth.route('/session', methods=['GET'])
 @login_required
-def session():
+def session() -> Response | str:
     """ session information page """
     return render_template('session.html', title='Session', current_user=current_user)
 
 
 @auth.route('/register', methods=['GET', 'POST'])
-def register():
+def register() -> Response | str:
     """ register page """
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
@@ -119,7 +127,7 @@ def register():
 
 
 @auth.route('/reset', methods=['GET', 'POST'])
-def reset():
+def reset() -> Response | str:
     """ reset password page """
     form = ResetPasswordForm()
     if form.validate_on_submit():
@@ -130,7 +138,7 @@ def reset():
 
 
 @auth.route('/change', methods=['GET', 'POST'])
-def change():
+def change() -> Response | str:
     """ change password page """
     form = ChangePasswordForm()
     if form.validate_on_submit():
