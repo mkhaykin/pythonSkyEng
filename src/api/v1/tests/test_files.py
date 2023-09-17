@@ -154,7 +154,7 @@ async def test_file_put_wrong_user(db_test_users: AsyncSession, async_client: As
     # у первого должен быть установлен признак замены
     # проверяем прямо базу
     db_file = await db_test_users.get(models.Files, file_id)
-    assert db_file.is_replaced
+    assert db_file.replaced_at and db_file.replaced_id
 
     _param1_del = dict(client=async_client, file_id=file_id)
     _param2_del = dict(client=async_client, file_id=file2_id)
@@ -183,7 +183,7 @@ async def test_file_put_wrong_user(db_test_users: AsyncSession, async_client: As
 
     # у первого признак замены должен быть снят
     await db_test_users.refresh(db_file)
-    assert not db_file.is_replaced
+    assert db_file.replaced_at is None and db_file.replaced_id is None
 
     # удаляем первый файл под Томом
     await delete_file(

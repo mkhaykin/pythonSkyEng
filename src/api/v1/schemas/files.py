@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import ConfigDict
+from pydantic import ConfigDict, computed_field
 
 from .base import Base
 
@@ -41,6 +41,21 @@ class FileInDB(_FileId, _File):
     updated_at: datetime | None
 
     user_id: UUID
+
+    @computed_field   # type: ignore
+    @property
+    def is_replaced(self) -> bool:
+        return bool(self.replaced_at)
+
+    @computed_field   # type: ignore
+    @property
+    def is_checked(self) -> bool:
+        return bool(self.checked_at)
+
+    @computed_field   # type: ignore
+    @property
+    def is_result_sent(self) -> bool:
+        return bool(self.send_result_at)
 
     model_config = ConfigDict(
         from_attributes=True,

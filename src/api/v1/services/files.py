@@ -9,7 +9,7 @@ from fastapi.security import OAuth2PasswordBearer
 from passlib.context import CryptContext
 
 from src.api.config import settings
-from src.api.v1 import models, repositories  # schemas,
+from src.api.v1 import models, repositories, schemas
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -22,13 +22,13 @@ class FilesService:
     def __init__(self, repo: repositories.FilesRepository = Depends()):
         self._repo = repo
 
-    async def files(self, user_id: UUID):
+    async def files(self, user_id: UUID) -> list[schemas.FileInDB]:
         return await self._repo.get_by_user(user_id)
 
-    async def file(self, file_id: UUID, user_id: UUID):
-        db_file: models.Files = await self._repo.get_by_id(file_id)
-        await self._check_owner(db_file, user_id)
-        return db_file
+    async def file(self, file_id: UUID, user_id: UUID) -> schemas.FileInDB:
+        file: schemas.FileInDB = await self._repo.get_by_id(file_id)
+        await self._check_owner(file, user_id)
+        return file
 
     @staticmethod
     def _copy_to_store(file: UploadFile, filename: str):
@@ -62,7 +62,7 @@ class FilesService:
         return db_file
 
     @staticmethod
-    async def _check_owner(file: models.Files, user_id: UUID):
+    async def _check_owner(file: schemas.FileInDB, user_id: UUID):
         # TODO: is user an administrator?
         if file.user_id != user_id:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
@@ -78,17 +78,17 @@ class FilesService:
     async def replace(self, file_id: UUID, file: UploadFile, user_id: UUID):
         self.check_file_extension(file)
 
-        db_old_file: models.Files = await self._repo.get_by_id(file_id)
-        await self._check_owner(db_old_file, user_id)
+        old_file: schemas.FileInDB = await self._repo.get_by_id(file_id)
+        await self._check_owner(old_file, user_id)
 
         # TODO нельзя заменять уже замененное
-        if db_old_file.is_replaced:
+        if old_file.is_replaced:
             raise HTTPException(status.HTTP_409_CONFLICT, 'File already replaced.')
 
         filename = str(uuid.uuid4())
         self._copy_to_store(file, filename)
 
-        db_new_file: models.Users = await self._repo.create(
+        new_file: schemas.FileInDB = await self._repo.create(
             name=filename,
             original_name=file.filename,
             user_id=user_id,
@@ -97,15 +97,15 @@ class FilesService:
         # TODO сделать метод в репозитории
         await self._repo.update(
             obj_id=file_id,
-            replaced_id=db_new_file.id,
+            replaced_id=new_file.id,
             replaced_at=datetime.datetime.utcnow(),
         )
 
-        return db_new_file
+        return new_file
 
     async def delete(self, file_id: UUID, user_id: UUID):
         # TODO check exists?
-        db_file: models.Files = await self._repo.get_by_id(file_id)
+        db_file: schemas.FileInDB = await self._repo.get_by_id(file_id)
         await self._check_owner(db_file, user_id)
 
         # нельзя удалять замененный файл, удаление с "вершины" дерева

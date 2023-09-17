@@ -74,4 +74,5 @@ class UserRegistration(_User):
 class UserInDB(_User):
     id: UUID
     psw_hash: str
+    disabled: bool = False
     model_config = ConfigDict(from_attributes=True)

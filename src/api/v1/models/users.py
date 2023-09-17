@@ -21,12 +21,13 @@ class Users(Base, MixinID, MixinTimeStamp):
     )
 
     def __init__(self, **kwargs):
-        # _ = kwargs.setdefault('name', kwargs.get('username', '').lower())
         if 'name' not in kwargs:
             kwargs['name'] = kwargs.get('username', '').lower()
 
         if 'password' in kwargs:
             self.set_password(kwargs.pop('password'))
+
+        kwargs['email'] = kwargs.pop('email').lower()
 
         super().__init__(**kwargs)
 

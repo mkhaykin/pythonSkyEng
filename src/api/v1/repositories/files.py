@@ -2,7 +2,7 @@ import datetime
 from uuid import UUID
 
 from fastapi import HTTPException, status
-from sqlalchemy import ColumnExpressionArgument, select
+from sqlalchemy import select
 
 from src.api.v1 import models, schemas
 from src.api.v1.repositories.base import BaseRepository
@@ -10,6 +10,7 @@ from src.api.v1.repositories.base import BaseRepository
 
 class FilesRepository(BaseRepository):
     _model = models.Files
+    _schema = schemas.FileInDB
     _name = 'files'
 
     async def check(self, file_id: UUID, message: str):
@@ -19,26 +20,13 @@ class FilesRepository(BaseRepository):
             checked_result=message,
         )
 
-    async def _get(
-            self,
-            *where: ColumnExpressionArgument,
-    ) -> list[schemas.FileInDB]:
-        stmt = select(self._model).where(*where)
-        items = (await self._session.scalars(stmt))
-        return [schemas.FileInDB.model_validate(item) for item in items]
-
-    async def get(
-            self,
-    ) -> list[schemas.FileInDB]:
-        return await self._get()
-
     async def get_unchecked(
             self,
     ) -> list[schemas.FileInDB]:
-        return await self._get(self._model.checked_at.is_(None))  # ignore
+        return await self.get(self._model.checked_at.is_(None))
 
     async def get_by_user(self, user_id: UUID) -> list[schemas.FileInDB]:
-        return await self._get(self._model.user_id == str(user_id))
+        return await self.get(self._model.user_id == str(user_id))
 
     async def delete(self, obj_id: UUID) -> None:
         await super().delete(obj_id)

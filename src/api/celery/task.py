@@ -17,7 +17,7 @@ async def async_check_files():
         try:
             repo = FilesRepository(session)
             service = ExamService(repo)
-            await service.check()
+            await service.check_all()
         except Exception as e:
             print(e)    # TODO write log
 

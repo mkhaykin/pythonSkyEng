@@ -5,16 +5,13 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
 from src.api.config import settings
-from src.api.v1.models import Users
-from src.api.v1.repositories import UserRepository
-from src.api.v1.schemas import User
+from src.api.v1 import repositories, schemas
 
 CREDENTIALS_EXCEPTION = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail='Could not validate credentials',
     headers={'WWW-Authenticate': 'Bearer'},
 )
-
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/v1/token')
 
@@ -34,23 +31,25 @@ def create_access_token(
 
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
-        repo: UserRepository = Depends(),
-) -> Users:
+        repo: repositories.UserRepository = Depends(),
+) -> schemas.UserInDB:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ACCESS_TOKEN_ALGORITHM])
-        username: str = payload.get('sub')
+        payload: dict[str, str] = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ACCESS_TOKEN_ALGORITHM])
+        username: str = payload.get('sub', '')
         if username is None:
             raise CREDENTIALS_EXCEPTION
     except JWTError:
         raise CREDENTIALS_EXCEPTION
 
-    user = await repo.get_user(username)
+    user: schemas.UserInDB | None = await repo.get_user(username)
     if user is None:
         raise CREDENTIALS_EXCEPTION
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(
+        current_user: schemas.UserInDB = Depends(get_current_user)
+) -> schemas.UserInDB:
     if current_user.disabled:
         raise HTTPException(status_code=400, detail='Inactive user')
     return current_user

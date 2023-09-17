@@ -21,3 +21,7 @@ from src.api.v1.schemas.files import (
     FileReplace,
     FileDelete,
 )
+
+from src.api.v1.schemas.messages import (
+    Message,
+)
