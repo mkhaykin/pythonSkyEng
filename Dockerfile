@@ -7,17 +7,18 @@ LABEL maintainer="mkhaikin@yandex.ru"
 WORKDIR /project
 
 #
-COPY src ./src
-COPY requirements.txt ./
-COPY .pre-commit-config_exam.yaml ./.pre-commit-config.yaml
+COPY src requirements.txt ./src/
 
 #
 RUN apt update && \
     apt install -y --no-install-recommends git && \
     git init . && \
-    pip install --no-cache-dir --upgrade -r requirements.txt && \
-    pre-commit install && \
-    pre-commit
+    pip install --no-cache-dir --upgrade -r ./src/requirements.txt && \
+    rm ./src/requirements.txt && \
+    pip install pre-commit && \
+    cp src/api/v1/services/exam.yaml ./.pre-commit-config.yaml && \
+    pre-commit install --install-hooks
+
 #
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONBUFFERED 1
